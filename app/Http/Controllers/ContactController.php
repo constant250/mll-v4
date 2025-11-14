@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MailService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 
 class ContactController extends Controller
@@ -48,22 +48,23 @@ class ContactController extends Controller
         $baseUrl = $request->getSchemeAndHttpHost();
 
         try {
-            // Send email to business
-            $sendmail = Mail::send('emails.contact', [
-                'fullName' => $validated['fullName'],
-                'email' => $validated['email'],
-                'phone' => $validated['phone'],
-                'practiceArea' => $validated['practiceArea'],
-                'description' => $validated['description'],
-                'baseUrl' => $baseUrl,
-            ], function ($message) use ($validated, $recipientEmail) {
-                $message->to($recipientEmail)
-                    ->subject('MLL - Contact Form Submission - ' . $validated['practiceArea'])
-                    ->replyTo($validated['email'], $validated['fullName']);
-            });
-
-            
-
+            // Send email to business using PHPMailer
+            $mailService = new MailService();
+            $mailService->sendEmailFromTemplate(
+                $recipientEmail,
+                'MLL - Contact Form Submission - ' . $validated['practiceArea'],
+                'emails.contact',
+                [
+                    'fullName' => $validated['fullName'],
+                    'email' => $validated['email'],
+                    'phone' => $validated['phone'],
+                    'practiceArea' => $validated['practiceArea'],
+                    'description' => $validated['description'],
+                    'baseUrl' => $baseUrl,
+                ],
+                $validated['email'],
+                $validated['fullName']
+            );
 
             // If no exception was thrown, mail was sent successfully
             Log::info('Contact form email sent successfully', [
@@ -96,14 +97,17 @@ class ContactController extends Controller
         // Optionally send confirmation email to user
         if (config('mail.send_confirmation_email', false)) {
             try {
-                Mail::send('emails.contact-confirmation', [
-                    'fullName' => $validated['fullName'],
-                    'practiceArea' => $validated['practiceArea'],
-                    'description' => $validated['description'],
-                ], function ($message) use ($validated) {
-                    $message->to($validated['email'])
-                        ->subject('Thank you for contacting Melbourne Legal Lawyers');
-                });
+                $mailService = new MailService();
+                $mailService->sendEmailFromTemplate(
+                    $validated['email'],
+                    'Thank you for contacting Melbourne Legal Lawyers',
+                    'emails.contact-confirmation',
+                    [
+                        'fullName' => $validated['fullName'],
+                        'practiceArea' => $validated['practiceArea'],
+                        'description' => $validated['description'],
+                    ]
+                );
 
                 Log::info('Contact form confirmation email sent successfully', [
                     'recipient' => $validated['email']

@@ -161,8 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 body: JSON.stringify(data)
             });
 
-            console.log('response', response);
-
             // Check if response is JSON
             const contentType = response.headers.get('content-type');
             let result;

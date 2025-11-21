@@ -1,5 +1,15 @@
 @extends('layouts.app')
 
+@section('seo')
+    <x-seo 
+        title="Melbourne Legal Lawyers | Legal Solutions That Put People First | Lara, VIC"
+        description="Melbourne Legal Lawyers is a locally based law firm in Lara, VIC. We provide expert legal services in Family Law, Commercial Law, Immigration, and Wills & Estate planning. Fast consultation, Australian compliance, experienced team. Book your consultation today."
+        keywords="Melbourne Legal Lawyers, law firm Lara, family law Lara, commercial law Geelong, immigration lawyer Victoria, wills and estate planning, legal services Victoria, Geelong lawyers, Lara lawyers, Melbourne legal services"
+        :ogImage="asset('images/HEADER-IMAGE.jpg')"
+        :twitterImage="asset('images/HEADER-IMAGE.jpg')"
+    />
+@endsection
+
 @section('content')
 <div id="top">
     <x-app-header />
